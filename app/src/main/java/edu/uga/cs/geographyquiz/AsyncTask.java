@@ -6,7 +6,7 @@ import android.os.Looper;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-
+// taken from https://github.com/mobdevuga/jobstrackersqlite
 /** This is a replacement class for the Android's  AsyncTask class.
  * However, handling of the task's progress has not been implemented.
  * It uses Java's standard concurrency framework.

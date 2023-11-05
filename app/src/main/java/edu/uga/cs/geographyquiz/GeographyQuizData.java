@@ -46,6 +46,10 @@ public class GeographyQuizData {
             DBHelper.QUESTION_SET_COLUMN_Q6
     };
 
+    /**
+     * The class's public constructor. Call to create a GeographyQuizData object.
+     * @param context the caller's context
+     */
     public GeographyQuizData(Context context)
     {
         this.dbHelper = DBHelper.getInstance(context);

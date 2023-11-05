@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.util.Log;
 
 import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -13,13 +12,23 @@ import java.util.List;
 
 import edu.uga.cs.geographyquiz.pojo.Quiz;
 
+/**
+ * This is the activity used when the user is viewing past quizzes. It will display each quiz's
+ * score and time taken.
+ */
 public class ViewActivity extends MenuActivity {
     private static final String DEBUG_TAG = "ViewActivity";
     private RecyclerView recyclerView;
     private List<Quiz> quizList;
     private GeographyQuizData geographyQuizData;
 
-
+    /**
+     * Called by android. Creates the activity.
+     * @param savedInstanceState If the activity is being re-initialized after
+     *     previously being shut down then this Bundle contains the data it most
+     *     recently supplied in {@link #onSaveInstanceState}.  <b><i>Note: Otherwise it is null.</i></b>
+     *
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

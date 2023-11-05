@@ -81,6 +81,9 @@ public class QuizRecyclerAdapter extends RecyclerView.Adapter<QuizRecyclerAdapte
         holder.datetime.setText("Date: " + quiz.getDate());
     }
 
+    /**
+     * @return how many items are currently being held
+     */
     @Override
     public int getItemCount() { return (values != null) ? values.size() : 0; }
 }

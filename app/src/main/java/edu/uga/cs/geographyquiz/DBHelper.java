@@ -49,37 +49,6 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String TAKES_COLUMN_QUIZ_ID = "quizId";
     public static final String TAKES_COLUMN_QUESTION_SET_ID = "questionSetId";
 
-    /*private static final String CREATE_QUESTIONS =
-            "CREATE TABLE " + TABLE_QUESTIONS + " ("
-                + QUESTIONS_COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-                + QUESTIONS_COLUMN_STATE + " TEXT, "
-                + QUESTIONS_COLUMN_CAPITAL + " TEXT, "
-                + QUESTIONS_COLUMN_SECOND + " TEXT, "
-                + QUESTIONS_COLUMN_THIRD + " TEXT, "
-                + QUESTIONS_COLUMN_STATEHOOD + " INTEGER, "
-                + QUESTIONS_COLUMN_SINCE + " INTEGER, "
-                + QUESTIONS_COLUMN_SIZE_RANK + " INTEGER)";
-    private static final String CREATE_QUIZ =
-            "CREATE TABLE " + TABLE_QUIZ + " ("
-                + QUIZ_COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-                + QUIZ_COLUMN_DATE + " TEXT, "
-                + QUIZ_COLUMN_RESULT + " INTEGER, "
-                + QUIZ_COLUMN_PROGRESS + " INTEGER)";
-    private static final String CREATE_QUESTION_SET =
-            "CREATE TABLE " + TABLE_QUESTION_SET + " ("
-                + QUESTION_SET_COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-                + QUESTION_SET_COLUMN_Q1 + " INTEGER REFERENCES " + TABLE_QUESTIONS + "(" + QUESTIONS_COLUMN_ID + "), "
-                + QUESTION_SET_COLUMN_Q2 + " INTEGER REFERENCES " + TABLE_QUESTIONS + "(" + QUESTIONS_COLUMN_ID + "), "
-                + QUESTION_SET_COLUMN_Q3 + " INTEGER REFERENCES " + TABLE_QUESTIONS + "(" + QUESTIONS_COLUMN_ID + "), "
-                + QUESTION_SET_COLUMN_Q4 + " INTEGER REFERENCES " + TABLE_QUESTIONS + "(" + QUESTIONS_COLUMN_ID + "), "
-                + QUESTION_SET_COLUMN_Q5 + " INTEGER REFERENCES " + TABLE_QUESTIONS + "(" + QUESTIONS_COLUMN_ID + "), "
-                + QUESTION_SET_COLUMN_Q6 + " INTEGER REFERENCES " + TABLE_QUESTIONS + "(" + QUESTIONS_COLUMN_ID + "))";
-    private static final String CREATE_TAKES =
-            "CREATE TABLE " + TABLE_TAKES + " ("
-            + TAKES_COLUMN_QUIZ_ID + " INTEGER REFERENCES " + TABLE_QUIZ + "(" + QUIZ_COLUMN_ID + "), "
-            + TAKES_COLUMN_QUESTION_SET_ID + " INTEGER REFERENCES " + TABLE_QUESTION_SET + "(" + QUESTION_SET_COLUMN_ID + "), "
-            + "PRIMARY KEY(" + TAKES_COLUMN_QUIZ_ID + "," + TAKES_COLUMN_QUESTION_SET_ID + "))";*/
-
     // reference to only private instance
     private static DBHelper instance;
 
@@ -139,6 +108,7 @@ public class DBHelper extends SQLiteOpenHelper {
         fos.close();
     }
 
+    // required interface method stubs
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) { }
     @Override
