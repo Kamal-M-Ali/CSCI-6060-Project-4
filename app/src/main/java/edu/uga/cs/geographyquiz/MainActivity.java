@@ -36,7 +36,4 @@ public class MainActivity extends MenuActivity {
                 startActivity(new Intent(view.getContext(), ViewActivity.class))
         );
     }
-
-
-
 }
