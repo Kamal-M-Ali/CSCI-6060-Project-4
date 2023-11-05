@@ -39,6 +39,9 @@ public class ViewActivity extends MenuActivity {
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(layoutManager);
 
+        // open the database
+        geographyQuizData.open();
+
         // asynchronously fetch past quiz results
         new QuizDBReader().execute();
     }

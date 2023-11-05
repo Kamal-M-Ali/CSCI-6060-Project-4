@@ -55,7 +55,7 @@ public class GeographyQuizData {
      * Opens the database if it is not currently open.
      */
     public void open() {
-        if (db != null) {
+        if (db == null) {
             db = dbHelper.getWritableDatabase();
             Log.d(DEBUG_TAG, "Database open");
         }
@@ -74,7 +74,7 @@ public class GeographyQuizData {
     /**
      * @return true if the database is open; false otherwise
      */
-    public boolean isDBOpen() { return db.isOpen(); }
+    public boolean isDBOpen() { return db != null && db.isOpen(); }
 
 
     /**
@@ -119,7 +119,7 @@ public class GeographyQuizData {
             } else
                 Log.d(DEBUG_TAG, "Number of records from DB: 0");
         } catch (Exception e) {
-            Log.d(DEBUG_TAG, "Exception caught: " + e);
+            Log.e(DEBUG_TAG, "Exception caught: " + e);
         }
 
         // return the list of retrieved quizzes
