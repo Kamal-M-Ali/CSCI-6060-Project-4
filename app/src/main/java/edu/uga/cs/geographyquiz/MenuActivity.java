@@ -10,7 +10,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 
 /**
- * A top level class for shared menu options.
+ * A top level class for shared menu options. Child classes should extend this class if they use the
+ * same menu options (close app button).
  */
 public class MenuActivity extends AppCompatActivity {
     @Override

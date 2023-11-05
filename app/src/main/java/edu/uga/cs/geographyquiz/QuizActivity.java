@@ -40,6 +40,17 @@ public class QuizActivity extends AppCompatActivity {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_quiz, container, false );
     }
-
      */
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // save in progress quiz
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // load in progress quiz
+    }
 }
