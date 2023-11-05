@@ -1,30 +1,42 @@
 package edu.uga.cs.geographyquiz;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
-import android.widget.Toast;
+import android.widget.Button;
 
 import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
 
-public class MainActivity extends AppCompatActivity {
-
-    private static final String DEBUG_TAG = "Country Quiz";
+/**
+ * The main (splash) activity for navigating through the app.
+ */
+public class MainActivity extends MenuActivity {
+    private Button takeQuizButton;
+    private Button viewQuizButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        Log.d(DEBUG_TAG, "MainActivity.onCreate(): savedInstanceState: " + savedInstanceState);
-
         setContentView(R.layout.activity_main);
 
-        //create a toolbar
-        ActionBar ab = getSupportActionBar();
-        if (ab != null) {
-            ab.setTitle("Take me back!");
-            ab.setDisplayHomeAsUpEnabled(true);
-        }
+        // defining views
+        takeQuizButton = findViewById(R.id.buttonTakeQuiz);
+        viewQuizButton = findViewById(R.id.buttonViewQuiz);
 
+        // ancestor activity disable up button
+        ActionBar ab = getSupportActionBar();
+        if (ab != null)
+            ab.setDisplayHomeAsUpEnabled(false);
+
+        // setting up event handlers
+        takeQuizButton.setOnClickListener(view ->
+                startActivity(new Intent(view.getContext(), QuizActivity.class))
+        );
+
+        viewQuizButton.setOnClickListener(view ->
+                startActivity(new Intent(view.getContext(), ViewActivity.class))
+        );
     }
+
+
+
 }
