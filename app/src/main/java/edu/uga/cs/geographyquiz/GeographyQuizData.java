@@ -56,17 +56,15 @@ public class GeographyQuizData {
     }
 
     /**
-     * Opens the database if it is not currently open.
+     * Opens the database.
      */
     public void open() {
-        if (db == null) {
-            db = dbHelper.getWritableDatabase();
-            Log.d(DEBUG_TAG, "Database open");
-        }
+        db = dbHelper.getWritableDatabase();
+        Log.d(DEBUG_TAG, "Database open");
     }
 
     /**
-     * Will close the database if it is currently open.
+     * Closes the database.
      */
     public void close() {
         if(dbHelper != null) {

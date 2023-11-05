@@ -2,6 +2,8 @@ package edu.uga.cs.geographyquiz;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -19,6 +21,7 @@ import edu.uga.cs.geographyquiz.pojo.Quiz;
 public class ViewActivity extends MenuActivity {
     private static final String DEBUG_TAG = "ViewActivity";
     private RecyclerView recyclerView;
+    private TextView textViewEmpty;
     private List<Quiz> quizList;
     private GeographyQuizData geographyQuizData;
 
@@ -41,6 +44,7 @@ public class ViewActivity extends MenuActivity {
 
         // defining variables
         recyclerView = findViewById(R.id.recyclerView);
+        textViewEmpty = findViewById(R.id.textViewEmpty);
         quizList = new ArrayList<>();
         geographyQuizData = new GeographyQuizData(getApplicationContext());
 
@@ -68,25 +72,28 @@ public class ViewActivity extends MenuActivity {
          */
         @Override
         protected List<Quiz> doInBackground(Void... params) {
-            List<Quiz> quizList1 = geographyQuizData.retrievePastQuizzes();
-            Log.d(DEBUG_TAG, DEBUG_TAG + ": Quizzes retrieved: " + quizList1.size() );
-            return quizList1;
+            List<Quiz> quizList2 = geographyQuizData.retrievePastQuizzes();
+            Log.d(DEBUG_TAG, DEBUG_TAG + ": Quizzes retrieved: " + quizList2.size() );
+            return quizList2;
         }
 
         /**
          * This method will be automatically called by Android once the db reading background process
          * is finished. It will then create and set an adapter to provide values for the RecyclerView.
          * onPostExecute is like the notify method in an asynchronous method call discussed in class.
-         * @param quizList1 a list of Quiz objects
+         * @param quizList2 a list of Quiz objects
          */
         @Override
-        protected void onPostExecute(List<Quiz> quizList1) {
-            Log.d(DEBUG_TAG, DEBUG_TAG + ": quizList.size(): " + quizList1.size() );
-            quizList.addAll(quizList1);
+        protected void onPostExecute(List<Quiz> quizList2) {
+            Log.d(DEBUG_TAG, DEBUG_TAG + ": quizList.size(): " + quizList2.size());
+            quizList.addAll(quizList2);
 
             // create the RecyclerAdapter and set it for the RecyclerView
             QuizRecyclerAdapter recyclerAdapter = new QuizRecyclerAdapter(quizList);
             recyclerView.setAdapter(recyclerAdapter);
+
+            // show a message if there are no results
+            textViewEmpty.setVisibility(quizList.size() == 0 ? View.VISIBLE : View.GONE);
         }
     }
 

@@ -7,10 +7,26 @@
     android:padding="16dp"
     tools:context=".ViewActivity">
 
+  <TextView
+      android:id="@+id/textViewEmpty"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="No results to display. Take a quiz to have them show up here!"
+      android:textAlignment="center"
+      android:textAllCaps="false"
+      android:textSize="18sp"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
+      app:layout_constraintVertical_bias="0.3" />
+
   <androidx.recyclerview.widget.RecyclerView
       android:id="@+id/recyclerView"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
       tools:layout_editor_absoluteX="16dp"
-      tools:layout_editor_absoluteY="16dp" />
+      tools:layout_editor_absoluteY="16dp" >
+
+  </androidx.recyclerview.widget.RecyclerView>
 </androidx.constraintlayout.widget.ConstraintLayout>
