@@ -7,8 +7,8 @@
     tools:context=".MainActivity">
 
     <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/countriesList"
-        android:tag="countriesList"
+        android:id="@+id/questionsList"
+        android:tag="questionsList"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         class="edu.uga.cs.geographyquiz.QuizFragment" />
