@@ -30,7 +30,7 @@ public class QuizActivity extends AppCompatActivity {
     private RadioGroup radioGroup2;
     private GeographyQuizData geographyQuizData;
     int count = 6;
-    int[] randomQuestions = new int[count];
+    int[] rand = new int[count];
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,6 +39,7 @@ public class QuizActivity extends AppCompatActivity {
         geographyQuizData = new GeographyQuizData(getApplicationContext());
 
         ////////////////////////////////////////////////////////////////////////////////////////////
+        /*
         //generate 6 random numbers without repeats
         List<Integer> numbers = new ArrayList<>();
         for (int i = 1; i <= 50; i++) {
@@ -48,33 +49,73 @@ public class QuizActivity extends AppCompatActivity {
          //hold the 6 random numbers here
         for (int i = 0; i < count; i++) {
             int randomNumber = numbers.get(i);
-            randomQuestions[i] = randomNumber;
+            rand[i] = randomNumber;
         }//end for
         ////////////////////////////////////////////////////////////////////////////////////////////
+         */
 
         textView = findViewById(R.id.textView);
         radioGroup = findViewById((R.id.radioGroup));
 
-        QuestionSet qset = new QuestionSet(randomQuestions[0],randomQuestions[1],randomQuestions[2],
-                randomQuestions[3],randomQuestions[4],randomQuestions[5]);
+        /*
+        QuestionSet qset = new QuestionSet(rand[0],rand[1],rand[2],
+                rand[3],rand[4],rand[5]);
 
-        Questions q1 = geographyQuizData.createQuestion(randomQuestions[0]);
+        Questions q1 = geographyQuizData.createQuestion(rand[0]);
 
-        String str = q1.getState();
-
-
-
+        String str = String.valueOf(q1.getQuestionId());
+         */
         // descendant activity enable the up button
         ActionBar ab = getSupportActionBar();
         if (ab != null)
             ab.setDisplayHomeAsUpEnabled(true);
 
         geographyQuizData.open();
-        //new QuizDBReader().execute();
-        textView.setText(str);
-
+        //textView.setText(str);
+        new QuizDBReader().execute();
     }
 
+    /////////////////
+    /**
+     * An AsyncTask class (it extends AsyncTask) to perform DB reading of quizzes, asynchronously.
+     */
+    private class QuizDBReader extends AsyncTask<Void, Questions> {
+        /**
+         * This method will run as a background process to read from db. It returns a row from
+         * the questions db based on the passed in questionID (random # between 1 and 50)
+         * @param params
+         * @return a list of Quiz objects
+         */
+        @Override
+        protected Questions doInBackground(Void... params) {
+            //generate 6 random numbers without repeats
+            List<Integer> numbers = new ArrayList<>();
+            for (int i = 1; i <= 50; i++) {
+                numbers.add(i);
+            }//end for
+            Collections.shuffle(numbers, new Random());
+            //hold the 6 random numbers here
+            for (int i = 0; i < count; i++) {
+                int randomNumber = numbers.get(i);
+                rand[i] = randomNumber;
+            }//end for
+            Questions question = geographyQuizData.createQuestion(rand[0]);
+            return question;
+        }
+
+        /**
+         * This method will be automatically called by Android once the db reading background
+         * process is finished. It will then populate the question and answer information for the
+         * quiz question
+         * @param question a row in the db with question information
+         */
+        @Override
+        protected void onPostExecute(Questions question) {
+            String str = String.valueOf((question.getQuestionId()));
+            textView.setText((str));
+        }
+    }
+    /////////////////
 
     /* QUIZ FRAGMENT STUFF
     public QuizFragment()
