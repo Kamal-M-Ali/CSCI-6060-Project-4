@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.uga.cs.geographyquiz.pojo.QuestionSet;
+import edu.uga.cs.geographyquiz.pojo.Questions;
 import edu.uga.cs.geographyquiz.pojo.Quiz;
 import edu.uga.cs.geographyquiz.pojo.Takes;
 
@@ -47,6 +48,50 @@ public class GeographyQuizData {
     };
 
     /**
+     * This method creates a question based on the passed in questionID which. questionID is a
+     * random number from 1-50
+     * @param questionID a random int from 1-50 representing the state ID
+     * @return
+     */
+    public Questions createQuestion(int questionID) {
+        Questions questions = new Questions(questionID, "null", "null",
+                "null", "null", -1, -1, -1);
+        int colIndex;
+        try (Cursor cursor = db.query(DBHelper.TABLE_QUESTIONS, QUESTIONS_COLUMNS,
+                DBHelper.QUESTIONS_COLUMN_ID + "=" + questionID, null, null, null, null)) {
+
+            // get all quiz data
+            if (cursor != null && cursor.getCount() > 0) {
+                if (cursor.getColumnCount() >= QUIZ_COLUMNS.length) {
+                    colIndex = cursor.getColumnIndex( DBHelper.QUESTIONS_COLUMN_STATE );
+                    String state = cursor.getString( colIndex );
+                    colIndex = cursor.getColumnIndex( DBHelper.QUESTIONS_COLUMN_CAPITAL );
+                    String capital = cursor.getString((colIndex));
+                    colIndex = cursor.getColumnIndex( DBHelper.QUESTIONS_COLUMN_SECOND );
+                    String second = cursor.getString((colIndex));
+                    colIndex = cursor.getColumnIndex( DBHelper.QUESTIONS_COLUMN_THIRD );
+                    String third = cursor.getString((colIndex));
+                    colIndex = cursor.getColumnIndex( DBHelper.QUESTIONS_COLUMN_STATEHOOD);
+                    int stateHood = Integer.parseInt(cursor.getString((colIndex)));
+                    colIndex = cursor.getColumnIndex( DBHelper.QUESTIONS_COLUMN_SINCE);
+                    int since = Integer.parseInt(cursor.getString((colIndex)));
+                    colIndex = cursor.getColumnIndex( DBHelper.QUESTIONS_COLUMN_SIZE_RANK);
+                    int rank = Integer.parseInt(cursor.getString((colIndex)));
+                    questions = new Questions(questionID, state, capital,
+                            second, third, stateHood, since, rank);
+                    }
+            }
+            if (cursor != null) {
+                Log.d(DEBUG_TAG, "Retrieved row data");
+            } else
+                Log.d(DEBUG_TAG, "Did not retrieve row data");
+        } catch (Exception e) {
+            Log.e(DEBUG_TAG, "Exception caught: " + e);
+        }
+        return questions;
+    }
+
+    /**
      * The class's public constructor. Call to create a GeographyQuizData object.
      * @param context the caller's context
      */
@@ -77,6 +122,8 @@ public class GeographyQuizData {
      * @return true if the database is open; false otherwise
      */
     public boolean isDBOpen() { return db != null && db.isOpen(); }
+
+
 
 
     /**
