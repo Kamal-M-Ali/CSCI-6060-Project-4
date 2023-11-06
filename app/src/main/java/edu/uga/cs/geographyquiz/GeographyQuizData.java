@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.uga.cs.geographyquiz.pojo.QuestionSet;
-import edu.uga.cs.geographyquiz.pojo.Questions;
+import edu.uga.cs.geographyquiz.pojo.Question;
 import edu.uga.cs.geographyquiz.pojo.Quiz;
 import edu.uga.cs.geographyquiz.pojo.Takes;
 
@@ -48,50 +48,6 @@ public class GeographyQuizData {
     };
 
     /**
-     * This method creates a question based on the passed in questionID which. questionID is a
-     * random number from 1-50
-     * @param questionID a random int from 1-50 representing the state ID
-     * @return
-     */
-    public Questions createQuestion(int questionID) {
-        Questions questions = new Questions(questionID, "null", "null",
-                "null", "null", -1, -1, -1);
-        int colIndex;
-        try (Cursor cursor = db.query(DBHelper.TABLE_QUESTIONS, QUESTIONS_COLUMNS,
-                DBHelper.QUESTIONS_COLUMN_ID + "=" + questionID, null, null, null, null)) {
-
-            // get all quiz data
-            if (cursor != null && cursor.getCount() > 0) {
-                if (cursor.getColumnCount() >= QUIZ_COLUMNS.length) {
-                    colIndex = cursor.getColumnIndex( DBHelper.QUESTIONS_COLUMN_STATE );
-                    String state = cursor.getString( colIndex );
-                    colIndex = cursor.getColumnIndex( DBHelper.QUESTIONS_COLUMN_CAPITAL );
-                    String capital = cursor.getString((colIndex));
-                    colIndex = cursor.getColumnIndex( DBHelper.QUESTIONS_COLUMN_SECOND );
-                    String second = cursor.getString((colIndex));
-                    colIndex = cursor.getColumnIndex( DBHelper.QUESTIONS_COLUMN_THIRD );
-                    String third = cursor.getString((colIndex));
-                    colIndex = cursor.getColumnIndex( DBHelper.QUESTIONS_COLUMN_STATEHOOD);
-                    int stateHood = Integer.parseInt(cursor.getString((colIndex)));
-                    colIndex = cursor.getColumnIndex( DBHelper.QUESTIONS_COLUMN_SINCE);
-                    int since = Integer.parseInt(cursor.getString((colIndex)));
-                    colIndex = cursor.getColumnIndex( DBHelper.QUESTIONS_COLUMN_SIZE_RANK);
-                    int rank = Integer.parseInt(cursor.getString((colIndex)));
-                    questions = new Questions(questionID, state, capital,
-                            second, third, stateHood, since, rank);
-                    }
-            }
-            if (cursor != null) {
-                Log.d(DEBUG_TAG, "Retrieved row data");
-            } else
-                Log.d(DEBUG_TAG, "Did not retrieve row data");
-        } catch (Exception e) {
-            Log.e(DEBUG_TAG, "Exception caught: " + e);
-        }
-        return questions;
-    }
-
-    /**
      * The class's public constructor. Call to create a GeographyQuizData object.
      * @param context the caller's context
      */
@@ -122,9 +78,6 @@ public class GeographyQuizData {
      * @return true if the database is open; false otherwise
      */
     public boolean isDBOpen() { return db != null && db.isOpen(); }
-
-
-
 
     /**
      * This method is used to restore persistent objects stored as rows in the Quiz table in the
@@ -173,6 +126,61 @@ public class GeographyQuizData {
 
         // return the list of retrieved quizzes
         return quizzes;
+    }
+
+    /**
+     * This method returns a list of questions to be asked to the user.
+     * @param questionIds a list of random integers to select from the table.
+     * @return
+     */
+    public List<Question> createQuestions(int[] questionIds) {
+        List<Question> questions = new ArrayList<>();
+        StringBuilder where = new StringBuilder();
+
+        // build the where clause
+        for (int i = 0; i < questionIds.length; ++i) {
+            where.append(DBHelper.QUESTIONS_COLUMN_ID).append("=").append(questionIds[i]);
+            if (i != questionIds.length - 1)
+                where.append(" OR ");
+        }
+
+        int colIndex;
+        try (Cursor cursor = db.query(DBHelper.TABLE_QUESTIONS, QUESTIONS_COLUMNS,
+                where.toString(), null, null, null, null)) {
+
+            if (cursor != null && cursor.getCount() > 0) {
+                while (cursor.moveToNext()) {
+                    if (cursor.getColumnCount() >= QUIZ_COLUMNS.length) {
+                        colIndex = cursor.getColumnIndex(DBHelper.QUESTIONS_COLUMN_ID);
+                        int questionId = cursor.getInt(colIndex);
+                        colIndex = cursor.getColumnIndex(DBHelper.QUESTIONS_COLUMN_STATE);
+                        String state = cursor.getString(colIndex);
+                        colIndex = cursor.getColumnIndex(DBHelper.QUESTIONS_COLUMN_CAPITAL);
+                        String capital = cursor.getString((colIndex));
+                        colIndex = cursor.getColumnIndex(DBHelper.QUESTIONS_COLUMN_SECOND);
+                        String second = cursor.getString((colIndex));
+                        colIndex = cursor.getColumnIndex(DBHelper.QUESTIONS_COLUMN_THIRD);
+                        String third = cursor.getString((colIndex));
+                        colIndex = cursor.getColumnIndex(DBHelper.QUESTIONS_COLUMN_STATEHOOD);
+                        int stateHood = cursor.getInt(colIndex);
+                        colIndex = cursor.getColumnIndex(DBHelper.QUESTIONS_COLUMN_SINCE);
+                        int since = cursor.getInt(colIndex);
+                        colIndex = cursor.getColumnIndex(DBHelper.QUESTIONS_COLUMN_SIZE_RANK);
+                        int rank = cursor.getInt(colIndex);
+
+                        Question question = new Question(questionId, state, capital, second, third, stateHood, since, rank);
+                        questions.add(question);
+                    }
+                }
+            }
+            if (cursor != null) {
+                Log.d(DEBUG_TAG, "Retrieved row data");
+            } else
+                Log.d(DEBUG_TAG, "Did not retrieve row data");
+        } catch (Exception e) {
+            Log.e(DEBUG_TAG, "Exception caught: " + e);
+        }
+        return questions;
     }
 
     public Takes storeQuiz(Quiz quiz, QuestionSet questionSet) {

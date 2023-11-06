@@ -1,16 +1,13 @@
 package edu.uga.cs.geographyquiz.pojo;
 
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-
-import edu.uga.cs.geographyquiz.DBHelper;
 
 /**
  * A POJO class representing a Questions record in the database. These all are already stored
  * in the database.
  */
-public class Questions {
+public class Question {
     private Integer questionId;
     private String state;
     private String capitalCity;
@@ -33,7 +30,7 @@ public class Questions {
             edu.uga.cs.geographyquiz.DBHelper.QUESTIONS_COLUMN_SIZE_RANK
     };
 
-    public Questions(Integer questionId, String state, String capitalCity, String secondCity, String thirdCity, Integer statehood, Integer capitalSince, Integer sizeRank) {
+    public Question(Integer questionId, String state, String capitalCity, String secondCity, String thirdCity, Integer statehood, Integer capitalSince, Integer sizeRank) {
         this.questionId = questionId;
         this.state = state;
         this.capitalCity = capitalCity;
