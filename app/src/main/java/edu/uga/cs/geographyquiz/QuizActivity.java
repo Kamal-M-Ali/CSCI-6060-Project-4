@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
@@ -27,7 +28,12 @@ public class QuizActivity extends AppCompatActivity {
     private TextView textView;
     private TextView textView2;
     private RadioGroup radioGroup;
+    private RadioButton radioButton1;
+    private RadioButton radioButton2;
+    private RadioButton radioButton3;
     private RadioGroup radioGroup2;
+    private RadioButton radioButtonT;
+    private RadioButton radioButtonF;
     private GeographyQuizData geographyQuizData;
     private Quiz quiz;
     private QuestionSet questionSet;
@@ -62,6 +68,11 @@ public class QuizActivity extends AppCompatActivity {
 
         textView = findViewById(R.id.textView);
         radioGroup = findViewById((R.id.radioGroup));
+        radioButton1 = findViewById(R.id.radioButton1);
+        radioButton2 = findViewById(R.id.radioButton2);
+        radioButton3 = findViewById(R.id.radioButton3);
+        radioButtonT = findViewById(R.id.radioButtonT);
+        radioButtonF = findViewById(R.id.radioButtonF);
 
         /*
         QuestionSet qset = new QuestionSet(rand[0],rand[1],rand[2],
@@ -165,8 +176,29 @@ public class QuizActivity extends AppCompatActivity {
     private void showQuestion() {
         textView.setText("Which of the following is the capital city of "
                 + questionList.get(quiz.getProgress()).getState() + "?");
+        //get the three cities for the question in an array
+        String [] shuffle = { questionList.get(quiz.getProgress()).getCapitalCity(),
+                questionList.get(quiz.getProgress()).getSecondCity(),
+                questionList.get(quiz.getProgress()).getThirdCity()};
+        //shuffle the answer order
+        List<String> answers = new ArrayList<>();
+        for (int i = 0; i < 3; i++) {
+            answers.add(shuffle[i]);
+        }//end for
+        //shuffle the answer order
+        Collections.shuffle(answers, new Random());
+        //hold the 3 shuffled answers here
+        int count = 3;
+        String[] rand = new String[count];
+        for (int i = 0; i < count; i++) {
+            String randomAnswer = answers.get(i);
+            rand[i] = randomAnswer;
+        }//end for
 
         // set the buttons to be the city names in a shuffled order so its not the same each time
+        radioButton1.setText(rand[0]);
+        radioButton2.setText(rand[1]);
+        radioButton3.setText(rand[2]);
     }
 
     @Override
