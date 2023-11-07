@@ -3,11 +3,13 @@ package edu.uga.cs.geographyquiz.pojo;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.io.Serializable;
+
 /**
  * A POJO class representing a Questions record in the database. These all are already stored
  * in the database.
  */
-public class Question {
+public class Question implements Serializable {
     private Integer questionId;
     private String state;
     private String capitalCity;

@@ -2,6 +2,10 @@ package edu.uga.cs.geographyquiz;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
+import androidx.viewpager2.widget.ViewPager2;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -26,19 +30,12 @@ import edu.uga.cs.geographyquiz.pojo.Quiz;
  */
 public class QuizActivity extends AppCompatActivity {
     private static final String DEBUG_TAG = "QuizActivity";
-    private TextView textView;
-    private TextView textView2;
-    private RadioGroup radioGroup;
-    private RadioButton radioButton1;
-    private RadioButton radioButton2;
-    private RadioButton radioButton3;
-    private RadioGroup radioGroup2;
-    private RadioButton radioButtonT;
-    private RadioButton radioButtonF;
     private GeographyQuizData geographyQuizData;
     private Quiz quiz;
     private QuestionSet questionSet;
     private List<Question> questionList;
+    private ViewPager2 viewPager2;
+    private QuizPagerAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,85 +43,25 @@ public class QuizActivity extends AppCompatActivity {
         setContentView(R.layout.activity_quiz);
 
         geographyQuizData = new GeographyQuizData(getApplicationContext());
+        geographyQuizData.open();
+        new QuizActivity.QuizDBReader().execute();
 
         quiz = new Quiz();
         questionSet = new QuestionSet();
         questionList = new ArrayList<>();
-
-        textView = findViewById(R.id.textView);
-        radioGroup = findViewById((R.id.radioGroup));
-        radioButton1 = findViewById(R.id.radioButton1);
-        radioButton2 = findViewById(R.id.radioButton2);
-        radioButton3 = findViewById(R.id.radioButton3);
-        radioButtonT = findViewById(R.id.radioButtonT);
-        radioButtonF = findViewById(R.id.radioButtonF);
-        radioGroup = findViewById(R.id.radioGroup);
-        radioGroup2 = findViewById(R.id.radioGroup2);
-
-        //Need to implement storing the answers to the database
-        //listener to take in which answer the user chose
-        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                // checkedId contains the ID of the selected RadioButton
-                RadioButton selectedRadioButton = findViewById(checkedId);
-                if (selectedRadioButton != null) {
-                    String selectedCity = selectedRadioButton.getText().toString();
-                    if(selectedCity.equalsIgnoreCase(questionList.get(quiz.getProgress()).getCapitalCity())) {
-                        Toast.makeText(QuizActivity.this, "Correct! It is the capital", Toast.LENGTH_SHORT).show();
-                    }
-                    else {
-                        Toast.makeText(QuizActivity.this, "Incorrect! It is not the capital", Toast.LENGTH_SHORT).show();
-                    }
-                }
-            }
-        });
-        //listener to take in which answer the user chose
-        radioGroup2.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                // checkedId contains the ID of the selected RadioButton
-                RadioButton selectedRadioButton = findViewById(checkedId);
-                if (selectedRadioButton != null) {
-                    String selectedTorF = selectedRadioButton.getText().toString();
-                    if(selectedTorF.equalsIgnoreCase("True") &&
-                            questionList.get(quiz.getProgress()).getSizeRank() == 1 ) {
-                        Toast.makeText(QuizActivity.this, "Correct! It is also the largest city.", Toast.LENGTH_SHORT).show();
-                    }
-                    else if(selectedTorF.equalsIgnoreCase("False") &&
-                            questionList.get(quiz.getProgress()).getSizeRank() == 1 ) {
-                        Toast.makeText(QuizActivity.this, "Incorrect! It is also the largest city.", Toast.LENGTH_SHORT).show();
-                    }
-                    else if(selectedTorF.equalsIgnoreCase("True") &&
-                            questionList.get(quiz.getProgress()).getSizeRank() != 1 ) {
-                        Toast.makeText(QuizActivity.this, "Incorrect! It is NOT also the largest city.", Toast.LENGTH_SHORT).show();
-                    }
-                    else if(selectedTorF.equalsIgnoreCase("False") &&
-                            questionList.get(quiz.getProgress()).getSizeRank() != 1 ) {
-                        Toast.makeText(QuizActivity.this, "Correct! It is NOT also the largest city.", Toast.LENGTH_SHORT).show();
-                    }
-                    else {
-                        Toast.makeText(QuizActivity.this, "You should not ever reach here", Toast.LENGTH_SHORT).show();
-                    }
-
-                }
-            }
-        });
 
         // descendant activity enable the up button
         ActionBar ab = getSupportActionBar();
         if (ab != null)
             ab.setDisplayHomeAsUpEnabled(true);
 
-        geographyQuizData.open();
-
-        // i think need a check here if there is in progress quiz and if so get the quiz object saved
-        // then quiz NATURAL JOIN takes NATURAL JOIN question set which will then hold the references
-        // to the saved quiz questions, i might be able to help with this if necessary
-        new QuizDBReader().execute();
-
-        // will also need an async QuizDBWriter i think theres an example in the job leads app
+        viewPager2 = findViewById(R.id.viewPager2);
+        adapter = new QuizPagerAdapter(this, questionList);
+        viewPager2.setAdapter(adapter);
     }
+
+
+
 
     /**
      * An AsyncTask class (it extends AsyncTask) to perform DB reading of quizzes, asynchronously.
@@ -155,10 +92,10 @@ public class QuizActivity extends AppCompatActivity {
             // update the question sets foreign keys
             questionSet.setQ1(rand[0]);
             questionSet.setQ2(rand[1]);
-            questionSet.setQ2(rand[2]);
-            questionSet.setQ2(rand[3]);
-            questionSet.setQ2(rand[4]);
-            questionSet.setQ2(rand[5]);
+            questionSet.setQ3(rand[2]);
+            questionSet.setQ4(rand[3]);
+            questionSet.setQ5(rand[4]);
+            questionSet.setQ6(rand[5]);
 
             Log.d(DEBUG_TAG, "Questions retrieved");
             return geographyQuizData.createQuestions(rand);
@@ -174,38 +111,11 @@ public class QuizActivity extends AppCompatActivity {
         protected void onPostExecute(List<Question> questionList2) {
             Log.d(DEBUG_TAG, DEBUG_TAG + ": questionList2.size(): " + questionList2.size());
             questionList.addAll(questionList2);
-
             // set the first question
-            showQuestion();
+            for(int i = 0; i < adapter.getItemCount(); i++) {
+                adapter.updateQuestion(i, questionList.get(i));
+            }
         }
-    }
-
-    private void showQuestion() {
-        textView.setText("Which of the following is the capital city of "
-                + questionList.get(quiz.getProgress()).getState() + "?");
-        //get the three cities for the question in an array
-        String [] shuffle = { questionList.get(quiz.getProgress()).getCapitalCity(),
-                questionList.get(quiz.getProgress()).getSecondCity(),
-                questionList.get(quiz.getProgress()).getThirdCity()};
-        //shuffle the answer order
-        List<String> answers = new ArrayList<>();
-        for (int i = 0; i < 3; i++) {
-            answers.add(shuffle[i]);
-        }//end for
-        //shuffle the answer order
-        Collections.shuffle(answers, new Random());
-        //hold the 3 shuffled answers here
-        int count = 3;
-        String[] rand = new String[count];
-        for (int i = 0; i < count; i++) {
-            String randomAnswer = answers.get(i);
-            rand[i] = randomAnswer;
-        }//end for
-
-        // set the buttons to be the city names in a shuffled order so its not the same each time
-        radioButton1.setText(rand[0]);
-        radioButton2.setText(rand[1]);
-        radioButton3.setText(rand[2]);
     }
 
     @Override
