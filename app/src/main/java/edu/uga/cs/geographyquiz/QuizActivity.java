@@ -8,6 +8,7 @@ import android.util.Log;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -50,22 +51,6 @@ public class QuizActivity extends AppCompatActivity {
         questionSet = new QuestionSet();
         questionList = new ArrayList<>();
 
-        ////////////////////////////////////////////////////////////////////////////////////////////
-        /*
-        //generate 6 random numbers without repeats
-        List<Integer> numbers = new ArrayList<>();
-        for (int i = 1; i <= 50; i++) {
-            numbers.add(i);
-        }//end for
-        Collections.shuffle(numbers, new Random());
-         //hold the 6 random numbers here
-        for (int i = 0; i < count; i++) {
-            int randomNumber = numbers.get(i);
-            rand[i] = randomNumber;
-        }//end for
-        ////////////////////////////////////////////////////////////////////////////////////////////
-         */
-
         textView = findViewById(R.id.textView);
         radioGroup = findViewById((R.id.radioGroup));
         radioButton1 = findViewById(R.id.radioButton1);
@@ -73,15 +58,59 @@ public class QuizActivity extends AppCompatActivity {
         radioButton3 = findViewById(R.id.radioButton3);
         radioButtonT = findViewById(R.id.radioButtonT);
         radioButtonF = findViewById(R.id.radioButtonF);
+        radioGroup = findViewById(R.id.radioGroup);
+        radioGroup2 = findViewById(R.id.radioGroup2);
 
-        /*
-        QuestionSet qset = new QuestionSet(rand[0],rand[1],rand[2],
-                rand[3],rand[4],rand[5]);
+        //Need to implement storing the answers to the database
+        //listener to take in which answer the user chose
+        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                // checkedId contains the ID of the selected RadioButton
+                RadioButton selectedRadioButton = findViewById(checkedId);
+                if (selectedRadioButton != null) {
+                    String selectedCity = selectedRadioButton.getText().toString();
+                    if(selectedCity.equalsIgnoreCase(questionList.get(quiz.getProgress()).getCapitalCity())) {
+                        Toast.makeText(QuizActivity.this, "Correct! It is the capital", Toast.LENGTH_SHORT).show();
+                    }
+                    else {
+                        Toast.makeText(QuizActivity.this, "Incorrect! It is not the capital", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        });
+        //listener to take in which answer the user chose
+        radioGroup2.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                // checkedId contains the ID of the selected RadioButton
+                RadioButton selectedRadioButton = findViewById(checkedId);
+                if (selectedRadioButton != null) {
+                    String selectedTorF = selectedRadioButton.getText().toString();
+                    if(selectedTorF.equalsIgnoreCase("True") &&
+                            questionList.get(quiz.getProgress()).getSizeRank() == 1 ) {
+                        Toast.makeText(QuizActivity.this, "Correct! It is also the largest city.", Toast.LENGTH_SHORT).show();
+                    }
+                    else if(selectedTorF.equalsIgnoreCase("False") &&
+                            questionList.get(quiz.getProgress()).getSizeRank() == 1 ) {
+                        Toast.makeText(QuizActivity.this, "Incorrect! It is also the largest city.", Toast.LENGTH_SHORT).show();
+                    }
+                    else if(selectedTorF.equalsIgnoreCase("True") &&
+                            questionList.get(quiz.getProgress()).getSizeRank() != 1 ) {
+                        Toast.makeText(QuizActivity.this, "Incorrect! It is NOT also the largest city.", Toast.LENGTH_SHORT).show();
+                    }
+                    else if(selectedTorF.equalsIgnoreCase("False") &&
+                            questionList.get(quiz.getProgress()).getSizeRank() != 1 ) {
+                        Toast.makeText(QuizActivity.this, "Correct! It is NOT also the largest city.", Toast.LENGTH_SHORT).show();
+                    }
+                    else {
+                        Toast.makeText(QuizActivity.this, "You should not ever reach here", Toast.LENGTH_SHORT).show();
+                    }
 
-        Questions q1 = geographyQuizData.createQuestion(rand[0]);
+                }
+            }
+        });
 
-        String str = String.valueOf(q1.getQuestionId());
-         */
         // descendant activity enable the up button
         ActionBar ab = getSupportActionBar();
         if (ab != null)
@@ -89,7 +118,6 @@ public class QuizActivity extends AppCompatActivity {
 
         geographyQuizData.open();
 
-        //textView.setText(str);
         // i think need a check here if there is in progress quiz and if so get the quiz object saved
         // then quiz NATURAL JOIN takes NATURAL JOIN question set which will then hold the references
         // to the saved quiz questions, i might be able to help with this if necessary
@@ -151,27 +179,6 @@ public class QuizActivity extends AppCompatActivity {
             showQuestion();
         }
     }
-
-    /* QUIZ FRAGMENT STUFF
-    public QuizFragment()
-    {
-        // required default constructor
-    }
-
-    public static QuizFragment newInstance( int questionIndex ) {
-        QuizFragment fragment = new QuizFragment();
-        Bundle args = new Bundle();
-        args.putInt( "question", questionIndex );
-        fragment.setArguments( args );
-        return fragment;
-    }
-
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState ) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_quiz, container, false );
-    }
-     */
 
     private void showQuestion() {
         textView.setText("Which of the following is the capital city of "
