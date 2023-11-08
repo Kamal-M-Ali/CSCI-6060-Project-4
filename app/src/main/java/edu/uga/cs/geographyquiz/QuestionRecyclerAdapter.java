@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -67,6 +68,8 @@ public class QuestionRecyclerAdapter extends RecyclerView.Adapter<QuestionRecycl
             radioButtonF = itemView.findViewById(R.id.radioButtonF);
             radioGroup = itemView.findViewById(R.id.radioGroup);
             radioGroup2 = itemView.findViewById(R.id.radioGroup2);
+            radioGroup.setSelected(false);
+            radioGroup2.setSelected(false);
             q1 = false; // for capital question
             q2 = false; // for size question
         }
@@ -100,11 +103,15 @@ public class QuestionRecyclerAdapter extends RecyclerView.Adapter<QuestionRecycl
 
         holder.textView.setText("Which one of the following is the capital city of " + question.getState() + "?");
         holder.textView2.setText("Is the capital city also the largest city in the state of " + question.getState() + "?");
+        holder.radioGroup.clearCheck();
+        holder.radioGroup2.clearCheck();
         shuffleQuestions(holder, question);
 
         //listener to take in which answer the user chose
         holder.radioGroup.setOnCheckedChangeListener((group, checkedId) -> {
-            RadioButton selectedRadioButton = holder.radioGroup.findViewById(checkedId);
+            if (checkedId == -1) return;
+            RadioButton selectedRadioButton = group.findViewById(checkedId);
+            if (selectedRadioButton == null) return;
 
             if (selectedRadioButton.getText().equals(question.getCapitalCity())) {
                 if (!holder.q1) {
@@ -120,6 +127,8 @@ public class QuestionRecyclerAdapter extends RecyclerView.Adapter<QuestionRecycl
 
         //listener to take in which answer the user chose
         holder.radioGroup2.setOnCheckedChangeListener((group, checkedId) -> {
+            if (checkedId == -1) return;
+
             if ((checkedId == holder.radioButtonT.getId() && question.getSizeRank().equals(1))
                     || (checkedId == holder.radioButtonF.getId() && !question.getSizeRank().equals(1))) {
                 if (!holder.q2) {
@@ -144,10 +153,7 @@ public class QuestionRecyclerAdapter extends RecyclerView.Adapter<QuestionRecycl
             //get the three cities for the question in an array
             String [] shuffle = { question.getCapitalCity(), question.getSecondCity(), question.getThirdCity()};
             //shuffle the answer order
-            List<String> answers = new ArrayList<>();
-            for (int i = 0; i < 3; i++) {
-                answers.add(shuffle[i]);
-            }//end for
+            List<String> answers = new ArrayList<>(Arrays.asList(shuffle).subList(0, 3));
             //shuffle the answer order
             Collections.shuffle(answers, new Random());
             //hold the 3 shuffled answers here
