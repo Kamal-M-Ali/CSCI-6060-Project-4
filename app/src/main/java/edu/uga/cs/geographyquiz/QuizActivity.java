@@ -2,21 +2,14 @@ package edu.uga.cs.geographyquiz;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -35,7 +28,8 @@ public class QuizActivity extends AppCompatActivity {
     private QuestionSet questionSet;
     private List<Question> questionList;
     private ViewPager2 viewPager2;
-    private QuizPagerAdapter adapter;
+    private QuestionRecyclerAdapter adapter;
+    private int prevResult;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,19 +43,14 @@ public class QuizActivity extends AppCompatActivity {
         quiz = new Quiz();
         questionSet = new QuestionSet();
         questionList = new ArrayList<>();
+        viewPager2 = findViewById(R.id.viewPager2);
+        prevResult = 0;
 
-        // descendant activity enable the up button
+        // disable up button when taking a quiz
         ActionBar ab = getSupportActionBar();
         if (ab != null)
-            ab.setDisplayHomeAsUpEnabled(true);
-
-        viewPager2 = findViewById(R.id.viewPager2);
-        adapter = new QuizPagerAdapter(this, questionList);
-        viewPager2.setAdapter(adapter);
+            ab.setDisplayHomeAsUpEnabled(false);
     }
-
-
-
 
     /**
      * An AsyncTask class (it extends AsyncTask) to perform DB reading of quizzes, asynchronously.
@@ -89,14 +78,6 @@ public class QuizActivity extends AppCompatActivity {
                 rand[i] = randomNumber;
             }//end for
 
-            // update the question sets foreign keys
-            questionSet.setQ1(rand[0]);
-            questionSet.setQ2(rand[1]);
-            questionSet.setQ3(rand[2]);
-            questionSet.setQ4(rand[3]);
-            questionSet.setQ5(rand[4]);
-            questionSet.setQ6(rand[5]);
-
             Log.d(DEBUG_TAG, "Questions retrieved");
             return geographyQuizData.createQuestions(rand);
         }
@@ -111,22 +92,68 @@ public class QuizActivity extends AppCompatActivity {
         protected void onPostExecute(List<Question> questionList2) {
             Log.d(DEBUG_TAG, DEBUG_TAG + ": questionList2.size(): " + questionList2.size());
             questionList.addAll(questionList2);
-            // set the first question
-            for(int i = 0; i < adapter.getItemCount(); i++) {
-                adapter.updateQuestion(i, questionList.get(i));
-            }
+
+            questionSet.setQ1(questionList.get(0).getQuestionId());
+            questionSet.setQ2(questionList.get(1).getQuestionId());
+            questionSet.setQ3(questionList.get(2).getQuestionId());
+            questionSet.setQ4(questionList.get(3).getQuestionId());
+            questionSet.setQ5(questionList.get(4).getQuestionId());
+            questionSet.setQ6(questionList.get(5).getQuestionId());
+
+            adapter = new QuestionRecyclerAdapter(questionList, quiz);
+            viewPager2.setAdapter(adapter);
+            viewPager2.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+                /**
+                 * This method will be invoked when a new page becomes selected. Animation is not
+                 * necessarily complete.
+                 *
+                 * @param position Position index of the new selected page.
+                 */
+                @Override
+                public void onPageSelected(int position) {
+                    super.onPageSelected(position);
+                    switch (quiz.getResult() - prevResult) {
+                        case 0:
+                            Toast.makeText(getApplicationContext(), "Sorry, you missed both questions. +0 points.", Toast.LENGTH_SHORT).show();
+                            break;
+                        case 1:
+                            Toast.makeText(getApplicationContext(), "You got one question correct. +1 point.", Toast.LENGTH_SHORT).show();
+                            break;
+                        case 2:
+                            Toast.makeText(getApplicationContext(), "Good job! You got both questions correct. +2 points.", Toast.LENGTH_SHORT).show();
+                            break;
+                    }
+                    Log.d(DEBUG_TAG, "Current quiz result: " + quiz.getResult());
+                    prevResult = quiz.getResult();
+                    quiz.setProgress(quiz.getProgress() + 1);
+                }
+            });
         }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        // save in progress quiz
+        if (!isFinishing()) {
+            // save in progress quiz
+        }
+
+        if(geographyQuizData != null) {
+            geographyQuizData.close();
+            Log.d(DEBUG_TAG, DEBUG_TAG + ".onPause(): closing DB");
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        // load in progress quiz
+        if(geographyQuizData != null && !geographyQuizData.isDBOpen()) {
+            if (quiz == null) {
+                // check for in progress quiz to load
+            }
+
+            geographyQuizData.open();
+            Log.d(DEBUG_TAG, DEBUG_TAG + ".onResume(): opening DB");
+        }
     }
 }

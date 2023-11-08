@@ -3,21 +3,20 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".QuizQuestionFragment">
+    android:layout_height="match_parent">
 
     <TextView
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Placeholder Text"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        android:textAlignment="center"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintVertical_bias="0.2"
-        />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.2" />
 
     <RadioGroup
         android:id="@+id/radioGroup"
@@ -57,13 +56,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Is the capital also the largest city in this state?"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        android:textAlignment="center"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintVertical_bias="0.6"
-        />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.6" />
 
     <RadioGroup
         android:id="@+id/radioGroup2"
@@ -80,14 +79,14 @@
             android:id="@+id/radioButtonT"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="True"
+            android:text="Yes"
             />
 
         <RadioButton
             android:id="@+id/radioButtonF"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="False"
+            android:text="No"
             />
     </RadioGroup>
 

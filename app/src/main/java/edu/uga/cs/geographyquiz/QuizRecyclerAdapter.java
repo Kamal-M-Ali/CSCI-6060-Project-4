@@ -1,6 +1,5 @@
 package edu.uga.cs.geographyquiz;
 
-import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -61,7 +60,7 @@ public class QuizRecyclerAdapter extends RecyclerView.Adapter<QuizRecyclerAdapte
     @NonNull
     @Override
     public QuizHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.quiz, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.quiz_result, parent, false);
         return new QuizHolder(view);
     }
 
