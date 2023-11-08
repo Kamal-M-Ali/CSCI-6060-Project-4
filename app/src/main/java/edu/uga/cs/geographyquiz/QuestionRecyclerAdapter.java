@@ -97,14 +97,19 @@ public class QuestionRecyclerAdapter extends RecyclerView.Adapter<QuestionRecycl
      * @param position The position of the item within the adapter's data set.
      */
     @Override
-    public void onBindViewHolder(QuestionHolder holder, int position) {
+    public void onBindViewHolder(@NonNull QuestionHolder holder, int position) {
         Question question = values.get(position);
         Log.d(DEBUG_TAG, "onBindViewHolder: " + question);
+
+        // check if this is the dummy question
+        if (question.getQuestionId() == null) return;
 
         holder.textView.setText("Which one of the following is the capital city of " + question.getState() + "?");
         holder.textView2.setText("Is the capital city also the largest city in the state of " + question.getState() + "?");
         holder.radioGroup.clearCheck();
         holder.radioGroup2.clearCheck();
+        holder.q1 = false;
+        holder.q2 = false;
         shuffleQuestions(holder, question);
 
         //listener to take in which answer the user chose

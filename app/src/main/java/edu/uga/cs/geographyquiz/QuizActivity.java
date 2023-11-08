@@ -4,6 +4,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
@@ -28,7 +29,6 @@ public class QuizActivity extends AppCompatActivity {
     private QuestionSet questionSet;
     private List<Question> questionList;
     private ViewPager2 viewPager2;
-    private QuestionRecyclerAdapter adapter;
     private int prevResult;
 
     @Override
@@ -92,7 +92,9 @@ public class QuizActivity extends AppCompatActivity {
         protected void onPostExecute(List<Question> questionList2) {
             Log.d(DEBUG_TAG, DEBUG_TAG + ": questionList2.size(): " + questionList2.size());
             questionList.addAll(questionList2);
+            //questionList.add(new Question()); // add a dummy quiz for registering final swipe
 
+            // TODO: this now needs to be updated in the case that this was the restoration of a partial quiz
             questionSet.setQ1(questionList.get(0).getQuestionId());
             questionSet.setQ2(questionList.get(1).getQuestionId());
             questionSet.setQ3(questionList.get(2).getQuestionId());
@@ -100,9 +102,30 @@ public class QuizActivity extends AppCompatActivity {
             questionSet.setQ5(questionList.get(4).getQuestionId());
             questionSet.setQ6(questionList.get(5).getQuestionId());
 
-            adapter = new QuestionRecyclerAdapter(questionList, quiz);
+            QuestionRecyclerAdapter adapter = new QuestionRecyclerAdapter(questionList, quiz);
             viewPager2.setAdapter(adapter);
             viewPager2.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+                private boolean settled = false;
+
+                @Override
+                public void onPageScrollStateChanged(int state) {
+                    super.onPageScrollStateChanged(state);
+                    // out of bounds swipe detection
+                    // (see https://stackoverflow.com/questions/64224874/detect-swiping-out-of-bounds-in-androids-viewpager2)
+                    if (state == ViewPager2.SCROLL_STATE_DRAGGING) {
+                        settled = false;
+                    }
+                    if (state == ViewPager2.SCROLL_STATE_SETTLING) {
+                        settled = true;
+                    }
+                    if (state == ViewPager2.SCROLL_STATE_IDLE && !settled) {
+                        Intent intent = new Intent(getApplicationContext(), ResultActivity.class);
+                        intent.putExtra("RESULTS", quiz.getResult().intValue());
+                        // TODO: save quiz results
+                        startActivity(intent);
+                    }
+                }
+
                 /**
                  * This method will be invoked when a new page becomes selected. Animation is not
                  * necessarily complete.
@@ -112,6 +135,8 @@ public class QuizActivity extends AppCompatActivity {
                 @Override
                 public void onPageSelected(int position) {
                     super.onPageSelected(position);
+                    if (position == 0) return; // skip if its the start of the quiz
+
                     switch (quiz.getResult() - prevResult) {
                         case 0:
                             Toast.makeText(getApplicationContext(), "Sorry, you missed both questions. +0 points.", Toast.LENGTH_SHORT).show();
@@ -135,7 +160,7 @@ public class QuizActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         if (!isFinishing()) {
-            // save in progress quiz
+            // TODO: save in progress quiz
         }
 
         if(geographyQuizData != null) {
@@ -149,7 +174,7 @@ public class QuizActivity extends AppCompatActivity {
         super.onResume();
         if(geographyQuizData != null && !geographyQuizData.isDBOpen()) {
             if (quiz == null) {
-                // check for in progress quiz to load
+                // TODO: check for in progress quiz to load
             }
 
             geographyQuizData.open();

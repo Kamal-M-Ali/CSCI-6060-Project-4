@@ -32,6 +32,17 @@ public class Question implements Serializable {
             edu.uga.cs.geographyquiz.DBHelper.QUESTIONS_COLUMN_SIZE_RANK
     };
 
+    public Question() {
+        this.questionId = null;
+        this.state = null;
+        this.capitalCity = null;
+        this.secondCity = null;
+        this.thirdCity = null;
+        this.statehood = null;
+        this.capitalSince = null;
+        this.sizeRank = null;
+    }
+
     public Question(Integer questionId, String state, String capitalCity, String secondCity, String thirdCity, Integer statehood, Integer capitalSince, Integer sizeRank) {
         this.questionId = questionId;
         this.state = state;
