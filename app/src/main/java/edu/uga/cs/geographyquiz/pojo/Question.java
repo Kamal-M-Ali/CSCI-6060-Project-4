@@ -1,10 +1,15 @@
 package edu.uga.cs.geographyquiz.pojo;
 
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+
+import java.io.Serializable;
+
 /**
  * A POJO class representing a Questions record in the database. These all are already stored
  * in the database.
  */
-public class Questions {
+public class Question implements Serializable {
     private Integer questionId;
     private String state;
     private String capitalCity;
@@ -14,7 +19,20 @@ public class Questions {
     private Integer capitalSince;
     private Integer sizeRank;
 
-    public Questions(Integer questionId, String state, String capitalCity, String secondCity, String thirdCity, Integer statehood, Integer capitalSince, Integer sizeRank) {
+    private SQLiteDatabase db;
+    private SQLiteOpenHelper quizDBHelper;
+    private static final String[] allColumns = {
+            edu.uga.cs.geographyquiz.DBHelper.QUESTIONS_COLUMN_ID,
+            edu.uga.cs.geographyquiz.DBHelper.QUESTIONS_COLUMN_STATE,
+            edu.uga.cs.geographyquiz.DBHelper.QUESTIONS_COLUMN_CAPITAL,
+            edu.uga.cs.geographyquiz.DBHelper.QUESTIONS_COLUMN_SECOND,
+            edu.uga.cs.geographyquiz.DBHelper.QUESTIONS_COLUMN_THIRD,
+            edu.uga.cs.geographyquiz.DBHelper.QUESTIONS_COLUMN_STATEHOOD,
+            edu.uga.cs.geographyquiz.DBHelper.QUESTIONS_COLUMN_SINCE,
+            edu.uga.cs.geographyquiz.DBHelper.QUESTIONS_COLUMN_SIZE_RANK
+    };
+
+    public Question(Integer questionId, String state, String capitalCity, String secondCity, String thirdCity, Integer statehood, Integer capitalSince, Integer sizeRank) {
         this.questionId = questionId;
         this.state = state;
         this.capitalCity = capitalCity;
