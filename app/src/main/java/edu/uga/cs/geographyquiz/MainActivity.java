@@ -33,7 +33,6 @@ public class MainActivity extends MenuActivity {
         ActionBar ab = getSupportActionBar();
         if (ab != null)
             ab.setDisplayHomeAsUpEnabled(false);
-
         // setting up event handlers
         takeQuizButton.setOnClickListener(view ->
                 startActivity(new Intent(view.getContext(), QuizActivity.class))

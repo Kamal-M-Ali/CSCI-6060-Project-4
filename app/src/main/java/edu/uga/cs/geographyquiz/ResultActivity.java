@@ -18,6 +18,7 @@ public class ResultActivity extends MenuActivity {
         ActionBar ab = getSupportActionBar();
         if (ab != null)
             ab.setDisplayHomeAsUpEnabled(true);
+        ab.setTitle("Back to main menu!");
 
         textView = findViewById(R.id.textView3);
 
