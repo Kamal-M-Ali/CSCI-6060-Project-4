@@ -1,18 +1,21 @@
 package edu.uga.cs.geographyquiz;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import androidx.core.util.Pair;
+
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import edu.uga.cs.geographyquiz.pojo.QuestionSet;
 import edu.uga.cs.geographyquiz.pojo.Question;
 import edu.uga.cs.geographyquiz.pojo.Quiz;
-import edu.uga.cs.geographyquiz.pojo.Takes;
 
 /**
  * This class facilitates database interactions.
@@ -34,8 +37,8 @@ public class GeographyQuizData {
     private static final String[] QUIZ_COLUMNS = {
             DBHelper.QUIZ_COLUMN_ID,
             DBHelper.QUIZ_COLUMN_DATE,
-            DBHelper.QUIZ_COLUMN_RESULT,
-            DBHelper.QUIZ_COLUMN_PROGRESS
+            DBHelper.QUIZ_COLUMN_PROGRESS,
+            DBHelper.QUIZ_COLUMN_RESULT
     };
     private static final String[] QUESTION_SET_COLUMNS = {
             DBHelper.QUESTION_SET_COLUMN_ID,
@@ -90,7 +93,7 @@ public class GeographyQuizData {
 
         int columnIndex;
         try (Cursor cursor = db.query(DBHelper.TABLE_QUIZ, QUIZ_COLUMNS,
-                null, null, null, null, null)) {
+                null, null, null, null, DBHelper.QUIZ_COLUMN_ID + " DESC")) {
 
             // get all quiz results
             if (cursor != null && cursor.getCount() > 0) {
@@ -107,7 +110,7 @@ public class GeographyQuizData {
                         int result = cursor.getInt(columnIndex);
 
                         // create a new Quiz object and set its state to the retrieved values
-                        Quiz quiz = new Quiz(datetime, progress, result);
+                        Quiz quiz = new Quiz(datetime, result, progress);
                         quiz.setQuizId(id); // set the id (the primary key) of this object
                         // add it to the list
                         quizzes.add(quiz);
@@ -183,7 +186,41 @@ public class GeographyQuizData {
         return questions;
     }
 
-    public Takes storeQuiz(Quiz quiz, QuestionSet questionSet) {
-        return null;
+    /**
+     * Store a new quiz in the database
+     * @param takes a Java Pair object containing the Quiz and QuestionSet
+     */
+    public void storeQuiz(Pair<Quiz, QuestionSet> takes)
+    {
+        // creating the new records to be inserted
+        ContentValues quiz = new ContentValues();
+        quiz.put(DBHelper.QUIZ_COLUMN_DATE, new Date().toString());
+        quiz.put(DBHelper.QUIZ_COLUMN_RESULT, takes.first.getResult());
+        quiz.put(DBHelper.QUIZ_COLUMN_PROGRESS, takes.first.getProgress());
+
+        ContentValues questionSet = new ContentValues();
+        questionSet.put(DBHelper.QUESTION_SET_COLUMN_Q1, takes.second.getQ1());
+        questionSet.put(DBHelper.QUESTION_SET_COLUMN_Q2, takes.second.getQ2());
+        questionSet.put(DBHelper.QUESTION_SET_COLUMN_Q3, takes.second.getQ3());
+        questionSet.put(DBHelper.QUESTION_SET_COLUMN_Q4, takes.second.getQ4());
+        questionSet.put(DBHelper.QUESTION_SET_COLUMN_Q5, takes.second.getQ5());
+        questionSet.put(DBHelper.QUESTION_SET_COLUMN_Q6, takes.second.getQ6());
+
+        ContentValues relationship = new ContentValues();
+        relationship.put(DBHelper.TAKES_COLUMN_QUIZ_ID, takes.first.getQuizId());
+        relationship.put(DBHelper.TAKES_COLUMN_QUESTION_SET_ID, takes.second.getQuestionSetId());
+
+        // store the new records in their respective tables
+        long quizId = db.insert(DBHelper.TABLE_QUIZ, null, quiz);
+        long questionSetId = db.insert(DBHelper.TABLE_QUESTION_SET, null, questionSet);
+        db.insert(DBHelper.TABLE_TAKES, null, relationship);
+
+        // store the id (the primary key) in the Quiz and QuestionSet instances, as they are now persistent
+        takes.first.setQuizId((int) quizId);
+        takes.second.setQuestionSetId((int) questionSetId);
+
+        Log.d(DEBUG_TAG, "Stored quiz in db: " + takes.first);
+        Log.d(DEBUG_TAG, "Stored question set in db: " + takes.second);
     }
+
 }

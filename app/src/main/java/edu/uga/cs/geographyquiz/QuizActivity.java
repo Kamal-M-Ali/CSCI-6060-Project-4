@@ -2,6 +2,7 @@ package edu.uga.cs.geographyquiz;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.util.Pair;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.content.Intent;
@@ -38,6 +39,9 @@ public class QuizActivity extends AppCompatActivity {
 
         geographyQuizData = new GeographyQuizData(getApplicationContext());
         geographyQuizData.open();
+
+
+        // check for partial quiz data here
         new QuizActivity.QuizDBReader().execute();
 
         quiz = new Quiz();
@@ -50,6 +54,8 @@ public class QuizActivity extends AppCompatActivity {
         ActionBar ab = getSupportActionBar();
         if (ab != null)
             ab.setDisplayHomeAsUpEnabled(false);
+
+
     }
 
     /**
@@ -119,10 +125,8 @@ public class QuizActivity extends AppCompatActivity {
                         settled = true;
                     }
                     if (state == ViewPager2.SCROLL_STATE_IDLE && !settled) {
-                        Intent intent = new Intent(getApplicationContext(), ResultActivity.class);
-                        intent.putExtra("RESULTS", quiz.getResult().intValue());
-                        // TODO: save quiz results
-                        startActivity(intent);
+                        quiz.setProgress(quiz.getProgress() + 1); // they finished the last question
+                        new QuizWriter().execute(new Pair<>(quiz, questionSet)); // write the result to the db
                     }
                 }
 
@@ -156,11 +160,47 @@ public class QuizActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * An AsyncTask class (it extends AsyncTask) to perform DB writing of quizzes, asynchronously.
+     */
+    public class QuizWriter extends AsyncTask<Pair<Quiz, QuestionSet>, Pair<Quiz, QuestionSet>> {
+        /**
+         * This method will run as a background process to write into db. It will be automatically
+         * invoked by Android, when we call the execute method.
+         * @param takes a Java Pair object containing the Quiz and QuestionSet
+         * @return
+         */
+        @SafeVarargs
+        @Override
+        protected final Pair<Quiz, QuestionSet> doInBackground(Pair<Quiz, QuestionSet>... takes) {
+            geographyQuizData.storeQuiz(takes[0]);
+            return takes[0];
+        }
+
+        /**
+         * This method will be automatically called by Android once the writing to the database
+         * in a background process has finished.  Note that doInBackground returns a Quiz object.
+         * That object will be passed as argument to onPostExecute.
+         * onPostExecute is like the notify method in an asynchronous method call discussed in class.
+         * @param takes
+         */
+        @Override
+        protected void onPostExecute(Pair<Quiz, QuestionSet> takes) {
+            Log.d(DEBUG_TAG, "Quiz saved: " + takes.first);
+            Log.d(DEBUG_TAG, "Question set save: " + takes.second);
+
+            Intent intent = new Intent(getApplicationContext(), ResultActivity.class);
+            intent.putExtra("RESULTS", takes.first.getResult().intValue());
+            startActivity(intent);
+        }
+    }
+
     @Override
     protected void onPause() {
         super.onPause();
         if (!isFinishing()) {
-            // TODO: save in progress quiz
+            // save the quiz
+            //new QuizWriter().execute(new Pair<>(quiz, questionSet));
         }
 
         if(geographyQuizData != null) {

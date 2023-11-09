@@ -26,7 +26,7 @@ public class ResultActivity extends MenuActivity {
         StringBuilder res = new StringBuilder();
         res.append(String.format("You got %d out of 12 questions correct for a score of %.2f%%.", correct, score));
 
-        if (correct <= 4)
+        if (correct <= 6)
             res.append(" Better luck next time!");
         else if (correct <= 8)
             res.append(" Not bad!");
