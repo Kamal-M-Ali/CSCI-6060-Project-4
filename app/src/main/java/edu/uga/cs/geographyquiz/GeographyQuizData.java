@@ -223,4 +223,64 @@ public class GeographyQuizData {
         Log.d(DEBUG_TAG, "Stored question set in db: " + takes.second);
     }
 
+    /**
+     * This method returns a list of questions to be asked to the user.
+     * @return a Java Pair object representing the last quiz taken
+     */
+    public Pair<Quiz, QuestionSet> getLastQuiz() {
+        Pair<Quiz, QuestionSet> takes = null;
+
+        int columnIndex;
+        try (Cursor cursor = db.rawQuery("SELECT * " +
+                "FROM " + DBHelper.TABLE_QUIZ
+                + " NATURAL JOIN " + DBHelper.TABLE_TAKES
+                + " NATURAL JOIN " + DBHelper.TABLE_QUESTIONS
+                + " ORDER BY " + DBHelper.TAKES_COLUMN_QUIZ_ID + " DESC " +
+                "LIMIT 1", null);) {
+
+            if (cursor != null && cursor.getCount() > 0) {
+                cursor.moveToNext();
+                if (cursor.getColumnCount() >= QUIZ_COLUMNS.length + QUESTIONS_COLUMNS.length) {
+                    // build the quiz object
+                    columnIndex = cursor.getColumnIndex(DBHelper.QUIZ_COLUMN_ID);
+                    int quizId = cursor.getInt(columnIndex);
+                    columnIndex = cursor.getColumnIndex(DBHelper.QUIZ_COLUMN_DATE);
+                    String datetime = cursor.getString(columnIndex);
+                    columnIndex = cursor.getColumnIndex(DBHelper.QUIZ_COLUMN_PROGRESS);
+                    int progress = cursor.getInt(columnIndex);
+                    columnIndex = cursor.getColumnIndex(DBHelper.QUIZ_COLUMN_RESULT);
+                    int result = cursor.getInt(columnIndex);
+                    Quiz quiz = new Quiz(datetime, result, progress);
+                    quiz.setQuizId(quizId);
+
+                    // build the question set object
+                    columnIndex = cursor.getColumnIndex(DBHelper.QUESTION_SET_COLUMN_ID);
+                    int questionSetId = cursor.getInt(columnIndex);
+                    columnIndex = cursor.getColumnIndex(DBHelper.QUESTION_SET_COLUMN_Q1);
+                    int q1 = cursor.getInt(columnIndex);
+                    columnIndex = cursor.getColumnIndex(DBHelper.QUESTION_SET_COLUMN_Q2);
+                    int q2 = cursor.getInt(columnIndex);
+                    columnIndex = cursor.getColumnIndex(DBHelper.QUESTION_SET_COLUMN_Q3);
+                    int q3 = cursor.getInt(columnIndex);
+                    columnIndex = cursor.getColumnIndex(DBHelper.QUESTION_SET_COLUMN_Q4);
+                    int q4 = cursor.getInt(columnIndex);
+                    columnIndex = cursor.getColumnIndex(DBHelper.QUESTION_SET_COLUMN_Q5);
+                    int q5 = cursor.getInt(columnIndex);
+                    columnIndex = cursor.getColumnIndex(DBHelper.QUESTION_SET_COLUMN_Q6);
+                    int q6 = cursor.getInt(columnIndex);
+                    QuestionSet questionSet = new QuestionSet(q1, q2, q3, q4, q5, q6);
+                    questionSet.setQuestionSetId(questionSetId);
+
+                    takes = new Pair<>(quiz, questionSet);
+                }
+            }
+            if (cursor != null) {
+                Log.d(DEBUG_TAG, "Retrieved row data");
+            } else
+                Log.d(DEBUG_TAG, "Did not retrieve row data");
+        } catch (Exception e) {
+            Log.e(DEBUG_TAG, "Exception caught: " + e);
+        }
+        return takes;
+    }
 }
