@@ -255,9 +255,9 @@ public class QuizActivity extends AppCompatActivity {
                         Toast.makeText(getApplicationContext(), "Good job! You got both questions correct. +2 points.", Toast.LENGTH_SHORT).show();
                         break;
                 }
-                Log.d(DEBUG_TAG, "Current quiz result: " + quiz.getResult());
                 prevResult = quiz.getResult();
                 quiz.setProgress(quiz.getProgress() + 1);
+                Log.d(DEBUG_TAG, "ViewPager2.onPageSelected() saved quiz: " + quiz);
             }
         });
     }
