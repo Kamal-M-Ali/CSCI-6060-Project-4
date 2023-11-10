@@ -194,11 +194,19 @@ public class GeographyQuizData {
     {
         // creating the new records to be inserted
         ContentValues quiz = new ContentValues();
+        if (takes.first.getQuizId() != null && takes.first.getQuizId() > 0) {
+            // check if its an already persisted record
+            quiz.put(DBHelper.QUIZ_COLUMN_ID, takes.first.getQuizId());
+        }
         quiz.put(DBHelper.QUIZ_COLUMN_DATE, new Date().toString());
         quiz.put(DBHelper.QUIZ_COLUMN_RESULT, takes.first.getResult());
         quiz.put(DBHelper.QUIZ_COLUMN_PROGRESS, takes.first.getProgress());
 
         ContentValues questionSet = new ContentValues();
+        if (takes.second.getQuestionSetId() != null && takes.second.getQuestionSetId() > 0) {
+            // check if its an already persisted record
+            questionSet.put(DBHelper.QUESTION_SET_COLUMN_ID, takes.second.getQuestionSetId());
+        }
         questionSet.put(DBHelper.QUESTION_SET_COLUMN_Q1, takes.second.getQ1());
         questionSet.put(DBHelper.QUESTION_SET_COLUMN_Q2, takes.second.getQ2());
         questionSet.put(DBHelper.QUESTION_SET_COLUMN_Q3, takes.second.getQ3());
@@ -206,14 +214,14 @@ public class GeographyQuizData {
         questionSet.put(DBHelper.QUESTION_SET_COLUMN_Q5, takes.second.getQ5());
         questionSet.put(DBHelper.QUESTION_SET_COLUMN_Q6, takes.second.getQ6());
 
-        ContentValues relationship = new ContentValues();
-        relationship.put(DBHelper.TAKES_COLUMN_QUIZ_ID, takes.first.getQuizId());
-        relationship.put(DBHelper.TAKES_COLUMN_QUESTION_SET_ID, takes.second.getQuestionSetId());
-
         // store the new records in their respective tables
-        long quizId = db.insert(DBHelper.TABLE_QUIZ, null, quiz);
-        long questionSetId = db.insert(DBHelper.TABLE_QUESTION_SET, null, questionSet);
-        db.insert(DBHelper.TABLE_TAKES, null, relationship);
+        long quizId = db.replace(DBHelper.TABLE_QUIZ, null, quiz);
+        long questionSetId = db.replace(DBHelper.TABLE_QUESTION_SET, null, questionSet);
+
+        ContentValues relationship = new ContentValues();
+        relationship.put(DBHelper.TAKES_COLUMN_QUIZ_ID, quizId);
+        relationship.put(DBHelper.TAKES_COLUMN_QUESTION_SET_ID, questionSetId);
+        db.replace(DBHelper.TABLE_TAKES, null, relationship);
 
         // store the id (the primary key) in the Quiz and QuestionSet instances, as they are now persistent
         takes.first.setQuizId((int) quizId);
@@ -221,6 +229,7 @@ public class GeographyQuizData {
 
         Log.d(DEBUG_TAG, "Stored quiz in db: " + takes.first);
         Log.d(DEBUG_TAG, "Stored question set in db: " + takes.second);
+        Log.d(DEBUG_TAG, "Stored takes relation in db: " + relationship);
     }
 
     /**
@@ -234,13 +243,13 @@ public class GeographyQuizData {
         try (Cursor cursor = db.rawQuery("SELECT * " +
                 "FROM " + DBHelper.TABLE_QUIZ
                 + " NATURAL JOIN " + DBHelper.TABLE_TAKES
-                + " NATURAL JOIN " + DBHelper.TABLE_QUESTIONS
+                + " NATURAL JOIN " + DBHelper.TABLE_QUESTION_SET
                 + " ORDER BY " + DBHelper.TAKES_COLUMN_QUIZ_ID + " DESC " +
                 "LIMIT 1", null);) {
 
             if (cursor != null && cursor.getCount() > 0) {
                 cursor.moveToNext();
-                if (cursor.getColumnCount() >= QUIZ_COLUMNS.length + QUESTIONS_COLUMNS.length) {
+                if (cursor.getColumnCount() >= QUIZ_COLUMNS.length + QUESTION_SET_COLUMNS.length) {
                     // build the quiz object
                     columnIndex = cursor.getColumnIndex(DBHelper.QUIZ_COLUMN_ID);
                     int quizId = cursor.getInt(columnIndex);

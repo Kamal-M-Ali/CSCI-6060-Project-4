@@ -39,8 +39,10 @@ public class ViewActivity extends MenuActivity {
 
         // descendant activity enable the up button
         ActionBar ab = getSupportActionBar();
-        if (ab != null)
+        if (ab != null) {
+            ab.setTitle("Past quizzes");
             ab.setDisplayHomeAsUpEnabled(true);
+        }
 
         // defining variables
         recyclerView = findViewById(R.id.recyclerView);

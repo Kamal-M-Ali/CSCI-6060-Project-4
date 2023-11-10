@@ -16,8 +16,11 @@ public class ResultActivity extends MenuActivity {
 
         // descendant activity enable up button, this will take the user back to the main activity
         ActionBar ab = getSupportActionBar();
-        if (ab != null)
+        if (ab != null) {
+            ab.setTitle("Back to main menu!");
             ab.setDisplayHomeAsUpEnabled(true);
+        }
+
 
         textView = findViewById(R.id.textView3);
 

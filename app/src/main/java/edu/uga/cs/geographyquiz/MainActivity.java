@@ -31,8 +31,11 @@ public class MainActivity extends MenuActivity {
 
         // ancestor activity disable up button
         ActionBar ab = getSupportActionBar();
-        if (ab != null)
+        if (ab != null) {
             ab.setDisplayHomeAsUpEnabled(false);
+            ab.setTitle("Geography Quiz");
+        }
+
 
         // setting up event handlers
         takeQuizButton.setOnClickListener(view ->

@@ -42,10 +42,9 @@ public class QuizActivity extends AppCompatActivity {
         geographyQuizData = new GeographyQuizData(getApplicationContext());
         geographyQuizData.open();
 
-        if (getIntent().getBooleanExtra(PARTIAL_QUIZ, false)) {
-            Log.d(DEBUG_TAG, DEBUG_TAG + ".onCreate(): getting partial quiz");
-            new PartialQuizDBReader().execute();
-        } else {
+        // only start if non partial quiz, partial quiz will be opened in onResume()
+        // this only matters if the user is changing the screen orientation
+        if (!getIntent().getBooleanExtra(PARTIAL_QUIZ, false)) {
             Log.d(DEBUG_TAG, DEBUG_TAG + ".onCreate(): starting new quiz");
             new QuizActivity.QuizDBReader().execute();
         }
@@ -84,10 +83,12 @@ public class QuizActivity extends AppCompatActivity {
          */
         @Override
         protected void onPostExecute(Pair<Quiz, QuestionSet> takes) {
-            Log.d(DEBUG_TAG, DEBUG_TAG + ": last quiz: " + takes.first);
-            Log.d(DEBUG_TAG, DEBUG_TAG + ": last question set " + takes.second);
+            if (takes.first != null  && takes.second != null && takes.first.getProgress() != 6) {
+                getIntent().putExtra(PARTIAL_QUIZ, false);
 
-            if (takes.first.getProgress() != 6) {
+                Log.d(DEBUG_TAG, DEBUG_TAG + ": last quiz: " + takes.first);
+                Log.d(DEBUG_TAG, DEBUG_TAG + ": last question set " + takes.second);
+
                 // quiz is only partially complete, continue it
                 quiz = takes.first;
                 questionSet = takes.second;
@@ -191,14 +192,13 @@ public class QuizActivity extends AppCompatActivity {
             Log.d(DEBUG_TAG, "Question set saved: " + takes.second);
 
             // check if we just saved a partial quiz or a finished one
-            if (getIntent().getBooleanExtra(PARTIAL_QUIZ, false)) {
-                getIntent().putExtra(PARTIAL_QUIZ, false);
-            } else {
-                // not a partial quiz go to the results screen
-                Intent intent = new Intent(getApplicationContext(), ResultActivity.class);
-                intent.putExtra("RESULTS", takes.first.getResult().intValue());
-                startActivity(intent);
-            }
+            if (getIntent().getBooleanExtra(PARTIAL_QUIZ, false)) return;
+
+            Log.d(DEBUG_TAG, "QuizWriter.onPostExecute(): starting result activity");
+            // not a partial quiz go to the results screen
+            Intent intent = new Intent(getApplicationContext(), ResultActivity.class);
+            intent.putExtra("RESULTS", takes.first.getResult().intValue());
+            startActivity(intent);
         }
     }
 
@@ -211,6 +211,7 @@ public class QuizActivity extends AppCompatActivity {
         QuestionRecyclerAdapter adapter = new QuestionRecyclerAdapter(questionList, quiz);
         viewPager2.setAdapter(adapter);
         viewPager2.setCurrentItem(firstPage);
+        prevResult = quiz.getResult();
         viewPager2.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             private boolean settled = false;
 
@@ -225,7 +226,7 @@ public class QuizActivity extends AppCompatActivity {
                 if (state == ViewPager2.SCROLL_STATE_SETTLING) {
                     settled = true;
                 }
-                if (state == ViewPager2.SCROLL_STATE_IDLE && !settled) {
+                if (state == ViewPager2.SCROLL_STATE_IDLE && !settled && viewPager2.getCurrentItem() == 5) {
                     Log.d(DEBUG_TAG, "Detected quiz final swipe. Starting result activity.");
                     quiz.setProgress(quiz.getProgress() + 1); // they finished the last question
                     new QuizWriter().execute(new Pair<>(quiz, questionSet)); // write the result to the db
@@ -267,8 +268,14 @@ public class QuizActivity extends AppCompatActivity {
         if (!isFinishing() && quiz != null && quiz.getProgress() != 6) {
             // save the partial quiz
             Log.d(DEBUG_TAG, DEBUG_TAG + ".onPause(): saving partial quiz");
-            new QuizWriter().execute(new Pair<>(quiz, questionSet));
+            Log.d(DEBUG_TAG, DEBUG_TAG + ".onPause(): change in quiz score: " + (quiz.getResult() - prevResult)
+                    + ". Setting quiz score to: " + (quiz.getResult() - (quiz.getResult() - prevResult)));
             getIntent().putExtra(PARTIAL_QUIZ, true);
+            // remove the change in quiz score if saving a partial quiz
+            // prevents the user from gaining infinite points
+            quiz.setResult(quiz.getResult() - (quiz.getResult() - prevResult));
+
+            new QuizWriter().execute(new Pair<>(quiz, questionSet));
         } else {
             // close the database if the activity is ending or if there is no partial quiz
             // that still needs saving
